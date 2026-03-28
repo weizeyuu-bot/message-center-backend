@@ -78,6 +78,11 @@ export class ProcessController {
     return this.processService.listDeployments();
   }
 
+  @Get('workflow-binding/:businessObject')
+  getWorkflowBindingByBusinessObject(@Param('businessObject') businessObject: string) {
+    return this.processService.getWorkflowBindingByBusinessObject(businessObject);
+  }
+
   @Post('deployments')
   createDeployment(@Body() dto: CreateDeploymentDto) {
     return this.processService.createDeployment(dto);

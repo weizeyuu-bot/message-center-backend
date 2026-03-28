@@ -57,7 +57,7 @@ export class UsersService {
         phone: dto.phone,
         department: dto.department,
         passwordHash,
-        role: dto.role ?? 'USER',
+        role: dto.role ?? 'ROLE_BUYER',
         status: dto.status ?? 'ACTIVE',
       },
       select: {
