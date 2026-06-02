@@ -1,98 +1,125 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Message Center Backend
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+采购协同系统后端服务，基于 NestJS + Prisma + PostgreSQL + Redis。
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## 文档导航
 
-## Description
+- 技术栈总览：[docs/tech-stack.md](docs/tech-stack.md)
+- API 接口清单：[docs/api-list.md](docs/api-list.md)
+- 数据库表结构文档：[docs/database-schema.md](docs/database-schema.md)
+- Linux 生产部署文档：[docs/production-deployment-linux.md](docs/production-deployment-linux.md)
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## 技术栈
 
-## Project setup
+- 框架：NestJS 11、TypeScript 5
+- 鉴权：JWT、bcryptjs
+- 数据访问：Prisma ORM
+- 数据库：PostgreSQL 16
+- 缓存：Redis 7
+- 工具链：ESLint、Prettier、Jest
 
-```bash
-$ npm install
-```
+## 目录说明
 
-## Compile and run the project
+- src：后端业务代码（auth/users/business/process/common）
+- prisma：Prisma Schema、迁移、种子脚本
+- docs：项目文档（技术栈、API、数据库）
 
-```bash
-# development
-$ npm run start
+## 环境准备
 
-# watch mode
-$ npm run start:dev
+1. Node.js 20+
+2. Docker Desktop（用于本地 PostgreSQL/Redis）
+3. npm 10+
 
-# production mode
-$ npm run start:prod
-```
+## 环境变量
 
-## Run tests
+可基于 .env.example 创建 .env：
 
 ```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+PORT=3000
+CORS_ORIGIN=http://localhost:8080
+JWT_SECRET=change-me-in-prod
+DATABASE_URL=postgresql://purchase:purchase@localhost:5432/purchase_db?schema=public
+REDIS_URL=redis://localhost:6379
+ADMIN_USERNAME=admin
+ADMIN_NAME=系统管理员
+ADMIN_PASSWORD=Admin@123456
+ADMIN_ROLE=ROLE_ADMIN
 ```
 
-## Deployment
+注意：.env.example 里的 ADMIN_ROLE 若为 ADMIN，建议改为 ROLE_ADMIN 与后端默认逻辑保持一致。
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+## 安装依赖
 
 ```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+npm install
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+## 启动方式
 
-## Resources
+### 方式一：一键联调（推荐）
 
-Check out a few resources that may come in handy when working with NestJS:
+```bash
+npm run dev:all
+```
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+该命令会先启动 Docker 依赖，再并行启动后端与前端（前端位于上级目录的 ui5-message-center）。
 
-## Support
+### 方式二：分步启动
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+```bash
+# 1) 启动数据库与缓存
+npm run db:up
 
-## Stay in touch
+# 2) 启动后端
+npm run start:dev
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+# 3) 在另一个终端启动前端
+npm --prefix ..\ui5-message-center run start
+```
 
-## License
+## 常用命令
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+```bash
+# 关闭数据库与缓存
+npm run db:down
+
+# 生成 Prisma Client
+npm run prisma:generate
+
+# 执行迁移
+npm run prisma:migrate
+
+# 执行种子数据
+npm run prisma:seed
+
+# 单元测试
+npm run test
+
+# E2E 测试
+npm run test:e2e
+
+# 打包 + 生产模式运行
+npm run build
+npm run start:prod
+```
+
+## 本地访问
+
+- 后端健康入口：http://localhost:3000/api
+- 前端入口：http://localhost:8080
+
+## 常见问题
+
+1. docker 引擎连接失败
+
+现象：运行 npm run dev:all 时提示无法连接 dockerDesktopLinuxEngine。  
+处理：先启动 Docker Desktop 再重试。
+
+2. Prisma generate 报 EPERM（Windows）
+
+现象：query_engine-windows.dll.node 被占用。  
+处理：先停止正在运行的 Nest 进程，再执行 prisma 命令。
+
+## 许可
+
+UNLICENSED（以仓库实际声明为准）。

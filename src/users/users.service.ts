@@ -48,6 +48,10 @@ export class UsersService {
     const exists = await this.prisma.user.findUnique({ where: { username: dto.username } });
     if (exists) throw new ConflictException('用户名已存在');
 
+    const roleId = dto.role ?? 'ROLE_BUYER';
+    const roleExists = await this.prisma.appRole.findUnique({ where: { id: roleId } });
+    if (!roleExists) throw new NotFoundException('角色不存在');
+
     const passwordHash = await bcrypt.hash(dto.password, 10);
     return this.prisma.user.create({
       data: {
@@ -57,7 +61,7 @@ export class UsersService {
         phone: dto.phone,
         department: dto.department,
         passwordHash,
-        role: dto.role ?? 'ROLE_BUYER',
+        role: roleId,
         status: dto.status ?? 'ACTIVE',
       },
       select: {
@@ -77,6 +81,11 @@ export class UsersService {
   async update(id: string, dto: UpdateUserDto) {
     const exists = await this.prisma.user.findUnique({ where: { id } });
     if (!exists) throw new NotFoundException('用户不存在');
+
+    if (dto.role) {
+      const roleExists = await this.prisma.appRole.findUnique({ where: { id: dto.role } });
+      if (!roleExists) throw new NotFoundException('角色不存在');
+    }
 
     let passwordHash: string | undefined;
     if (dto.password) {

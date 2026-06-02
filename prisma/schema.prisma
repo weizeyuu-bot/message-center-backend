@@ -307,3 +307,88 @@ model ApprovalActionLog {
   @@index([processInstanceId, createdAt])
   @@index([businessObject, businessId, createdAt])
 }
+
+// ─── 消息中心新增模型 ────────────────────────────────────────
+
+model DataSource {
+  id          String          @id @default(uuid())
+  name        String          @unique
+  type        String          // POSTGRESQL | MYSQL | MSSQL | ORACLE
+  host        String
+  port        Int
+  database    String
+  username    String
+  password    String
+  schema      String?
+  description String?
+  status      String          @default("ACTIVE")
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  queries     QueryTemplate[]
+}
+
+model QueryTemplate {
+  id           String         @id @default(uuid())
+  name         String
+  dataSourceId String
+  sql          String
+  columnsJson  String?        // JSON array of {field, label, width?}
+  messageTemplate String?      // markdown template. supports {{title}} {{rowCount}} {{table}} {{time}}
+  description  String?
+  status       String         @default("ACTIVE")
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  dataSource   DataSource     @relation(fields: [dataSourceId], references: [id])
+  tasks        ScheduledTask[]
+
+  @@index([dataSourceId])
+}
+
+model NotifyChannel {
+  id          String         @id @default(uuid())
+  name        String         @unique
+  type        String         // EMAIL | DINGTALK | WECOM
+  configJson  String         // {smtp:{host,port,secure,user,pass,from}} or {webhook:url} or {webhook:url,secret:...}
+  description String?
+  status      String         @default("ACTIVE")
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  tasks       ScheduledTask[]
+}
+
+model ScheduledTask {
+  id              String         @id @default(uuid())
+  name            String         @unique
+  cronExpr        String         // e.g. "0 8 * * 1-5"
+  queryTemplateId String
+  channelId       String
+  recipients      String         // comma-separated email addresses or leave empty for webhook-only
+  messageTitle    String?
+  status          String         @default("ACTIVE") // ACTIVE | PAUSED
+  lastRunAt       DateTime?
+  lastRunStatus   String?        // SUCCESS | FAILED
+  nextRunAt       DateTime?
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  queryTemplate   QueryTemplate  @relation(fields: [queryTemplateId], references: [id])
+  channel         NotifyChannel  @relation(fields: [channelId], references: [id])
+  runLogs         TaskRunLog[]
+
+  @@index([queryTemplateId])
+  @@index([channelId])
+}
+
+model TaskRunLog {
+  id          String        @id @default(uuid())
+  taskId      String
+  status      String        // SUCCESS | FAILED
+  rowCount    Int?
+  message     String?
+  content     String?
+  startedAt   DateTime
+  finishedAt  DateTime?
+  createdAt   DateTime      @default(now())
+  task        ScheduledTask @relation(fields: [taskId], references: [id], onDelete: Cascade)
+
+  @@index([taskId, createdAt])
+}

@@ -479,10 +479,226 @@ async function main() {
     }
   }
 
-  console.log('Seeded admin user:', admin);
-  console.log('Seeded business mock data:', {
+  // Message Center test data
+  let demoDataSource = await prisma.dataSource.findUnique({
+    where: { name: 'purchase-db-local' },
+  });
+
+  if (!demoDataSource) {
+    demoDataSource = await prisma.dataSource.upsert({
+      where: { name: '演示采购库(PostgreSQL)' },
+      update: {
+        type: 'POSTGRESQL',
+        host: '127.0.0.1',
+        port: 5432,
+        database: 'purchase_db',
+        username: 'purchase',
+        password: 'purchase',
+        schema: 'public',
+        description: '本地演示数据库连接',
+        status: 'ACTIVE',
+      },
+      create: {
+        name: '演示采购库(PostgreSQL)',
+        type: 'POSTGRESQL',
+        host: '127.0.0.1',
+        port: 5432,
+        database: 'purchase_db',
+        username: 'purchase',
+        password: 'purchase',
+        schema: 'public',
+        description: '本地演示数据库连接',
+        status: 'ACTIVE',
+      },
+    });
+  }
+
+  const queryTemplateName = '供应商待审批统计';
+  const existingTemplate = await prisma.queryTemplate.findFirst({
+    where: {
+      name: queryTemplateName,
+      dataSourceId: demoDataSource.id,
+    },
+    select: { id: true },
+  });
+
+  const queryTemplate = existingTemplate
+    ? await prisma.queryTemplate.update({
+        where: { id: existingTemplate.id },
+        data: {
+          sql: "SELECT status, COUNT(*) AS total_count FROM \"Supplier\" GROUP BY status ORDER BY status",
+          columnsJson: JSON.stringify([
+            { field: 'status', label: '状态', width: '120px' },
+            { field: 'total_count', label: '数量', width: '120px' },
+          ]),
+          description: '统计各状态供应商数量',
+          status: 'ACTIVE',
+        },
+      })
+    : await prisma.queryTemplate.create({
+        data: {
+          name: queryTemplateName,
+          dataSourceId: demoDataSource.id,
+          sql: "SELECT status, COUNT(*) AS total_count FROM \"Supplier\" GROUP BY status ORDER BY status",
+          columnsJson: JSON.stringify([
+            { field: 'status', label: '状态', width: '120px' },
+            { field: 'total_count', label: '数量', width: '120px' },
+          ]),
+          description: '统计各状态供应商数量',
+          status: 'ACTIVE',
+        },
+      });
+
+  const notifyChannel = await prisma.notifyChannel.upsert({
+    where: { name: '演示钉钉机器人' },
+    update: {
+      type: 'DINGTALK',
+      configJson: JSON.stringify({
+        webhook: 'https://oapi.dingtalk.com/robot/send?access_token=REPLACE_ME',
+      }),
+      description: '请替换为真实 webhook 后测试发送',
+      status: 'ACTIVE',
+    },
+    create: {
+      name: '演示钉钉机器人',
+      type: 'DINGTALK',
+      configJson: JSON.stringify({
+        webhook: 'https://oapi.dingtalk.com/robot/send?access_token=REPLACE_ME',
+      }),
+      description: '请替换为真实 webhook 后测试发送',
+      status: 'ACTIVE',
+    },
+  });
+
+  await prisma.notifyChannel.upsert({
+    where: { name: '演示邮件通道' },
+    update: {
+      type: 'EMAIL',
+      configJson: JSON.stringify({
+        smtp: {
+          host: 'smtp.example.com',
+          port: 465,
+          secure: true,
+          user: 'sender@example.com',
+          pass: 'please_replace_password',
+          from: '消息中心 <sender@example.com>',
+        },
+        defaultRecipients: ['receiver1@example.com', 'receiver2@example.com'],
+      }),
+      description: '请替换真实 SMTP 与收件人后测试发送',
+      status: 'ACTIVE',
+    },
+    create: {
+      name: '演示邮件通道',
+      type: 'EMAIL',
+      configJson: JSON.stringify({
+        smtp: {
+          host: 'smtp.example.com',
+          port: 465,
+          secure: true,
+          user: 'sender@example.com',
+          pass: 'please_replace_password',
+          from: '消息中心 <sender@example.com>',
+        },
+        defaultRecipients: ['receiver1@example.com', 'receiver2@example.com'],
+      }),
+      description: '请替换真实 SMTP 与收件人后测试发送',
+      status: 'ACTIVE',
+    },
+  });
+
+  const activeTask = await prisma.scheduledTask.upsert({
+    where: { name: '工作日早八点推送-供应商统计' },
+    update: {
+      cronExpr: '0 8 * * 1-5',
+      queryTemplateId: queryTemplate.id,
+      channelId: notifyChannel.id,
+      recipients: '',
+      messageTitle: '供应商状态日报',
+      status: 'ACTIVE',
+      nextRunAt: null,
+    },
+    create: {
+      name: '工作日早八点推送-供应商统计',
+      cronExpr: '0 8 * * 1-5',
+      queryTemplateId: queryTemplate.id,
+      channelId: notifyChannel.id,
+      recipients: '',
+      messageTitle: '供应商状态日报',
+      status: 'ACTIVE',
+      nextRunAt: null,
+    },
+  });
+
+  const pausedTask = await prisma.scheduledTask.upsert({
+    where: { name: '每小时巡检-供应商统计(暂停)' },
+    update: {
+      cronExpr: '0 * * * *',
+      queryTemplateId: queryTemplate.id,
+      channelId: notifyChannel.id,
+      recipients: '',
+      messageTitle: '供应商状态巡检',
+      status: 'PAUSED',
+      nextRunAt: null,
+    },
+    create: {
+      name: '每小时巡检-供应商统计(暂停)',
+      cronExpr: '0 * * * *',
+      queryTemplateId: queryTemplate.id,
+      channelId: notifyChannel.id,
+      recipients: '',
+      messageTitle: '供应商状态巡检',
+      status: 'PAUSED',
+      nextRunAt: null,
+    },
+  });
+
+  await prisma.taskRunLog.deleteMany({
+    where: { taskId: { in: [activeTask.id, pausedTask.id] } },
+  });
+
+  const now = new Date();
+  await prisma.taskRunLog.createMany({
+    data: [
+      {
+        taskId: activeTask.id,
+        status: 'SUCCESS',
+        rowCount: 3,
+        message: '推送成功',
+        startedAt: new Date(now.getTime() - 60 * 60 * 1000),
+        finishedAt: new Date(now.getTime() - 60 * 60 * 1000 + 10 * 1000),
+      },
+      {
+        taskId: activeTask.id,
+        status: 'FAILED',
+        rowCount: 0,
+        message: 'Webhook 未配置或不可达',
+        startedAt: new Date(now.getTime() - 2 * 60 * 60 * 1000),
+        finishedAt: new Date(now.getTime() - 2 * 60 * 60 * 1000 + 8 * 1000),
+      },
+    ],
+  });
+
+  await prisma.scheduledTask.update({
+    where: { id: activeTask.id },
+    data: {
+      lastRunAt: new Date(now.getTime() - 60 * 60 * 1000),
+      lastRunStatus: 'SUCCESS',
+    },
+  });
+
+  await prisma.scheduledTask.update({
+    where: { id: pausedTask.id },
+    data: {
+      lastRunAt: new Date(now.getTime() - 2 * 60 * 60 * 1000),
+      lastRunStatus: 'FAILED',
+    },
+  });
+
+  console.log('Seeded base admin user:', admin);
+  console.log('Seeded template data:', {
     roles: mockRoles.length,
-    users: mockUsers.length + 1,
+    users: mockUsers.length,
     suppliers: mockSuppliers.length,
     materials: mockMaterials.length,
     priceRecords: mockPriceRecords.length,
@@ -491,6 +707,13 @@ async function main() {
     invoices: mockInvoices.length,
     processCategories: mockProcessCategories.length,
     processModels: mockProcessModels.length,
+    messageCenter: {
+      dataSources: 1,
+      queryTemplates: 1,
+      notifyChannels: 2,
+      tasks: 2,
+      taskRunLogs: 2,
+    },
   });
 }
 

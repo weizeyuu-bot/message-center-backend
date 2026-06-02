@@ -1,14 +1,18 @@
 import { Module } from '@nestjs/common';
+import { APP_GUARD } from '@nestjs/core';
 import { ConfigModule } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
-import { BusinessModule } from './business/business.module';
 import { PrismaModule } from './common/prisma/prisma.module';
 import { RedisModule } from './common/redis/redis.module';
-import { ProcessModule } from './process/process.module';
+import { RbacModule } from './rbac/rbac.module';
 import { UsersModule } from './users/users.module';
+import { DataSourceModule } from './datasource/datasource.module';
+import { NotifyModule } from './notify/notify.module';
+import { SchedulerModule } from './scheduler/scheduler.module';
+import { JwtAuthGuard } from './common/auth/jwt-auth.guard';
 
 @Module({
   imports: [
@@ -21,11 +25,19 @@ import { UsersModule } from './users/users.module';
     PrismaModule,
     RedisModule,
     AuthModule,
+    RbacModule,
     UsersModule,
-    BusinessModule,
-    ProcessModule,
+    DataSourceModule,
+    NotifyModule,
+    SchedulerModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_GUARD,
+      useClass: JwtAuthGuard,
+    },
+  ],
 })
 export class AppModule {}

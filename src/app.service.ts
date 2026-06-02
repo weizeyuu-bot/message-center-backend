@@ -5,7 +5,7 @@ export class AppService {
   getHealth() {
     return {
       ok: true,
-      service: 'purchase-backend',
+      service: 'message-center-backend',
       timestamp: new Date().toISOString(),
     };
   }
