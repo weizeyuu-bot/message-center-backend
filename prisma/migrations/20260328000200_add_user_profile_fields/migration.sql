@@ -1,5 +1,5 @@
 -- AlterTable
 ALTER TABLE "User"
-ADD COLUMN "email" TEXT,
-ADD COLUMN "phone" TEXT,
-ADD COLUMN "department" TEXT;
+ADD COLUMN IF NOT EXISTS "email" TEXT,
+ADD COLUMN IF NOT EXISTS "phone" TEXT,
+ADD COLUMN IF NOT EXISTS "department" TEXT;

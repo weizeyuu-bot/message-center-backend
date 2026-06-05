@@ -1,0 +1,17 @@
+-- Cleanup migration for environments that previously created purchase/process legacy tables.
+DROP TABLE IF EXISTS "InvoiceItem" CASCADE;
+DROP TABLE IF EXISTS "Invoice" CASCADE;
+DROP TABLE IF EXISTS "DeliveryPlanItem" CASCADE;
+DROP TABLE IF EXISTS "DeliveryPlan" CASCADE;
+DROP TABLE IF EXISTS "PurchaseOrderItem" CASCADE;
+DROP TABLE IF EXISTS "PurchaseOrder" CASCADE;
+DROP TABLE IF EXISTS "PriceRecord" CASCADE;
+DROP TABLE IF EXISTS "Material" CASCADE;
+DROP TABLE IF EXISTS "Supplier" CASCADE;
+DROP TABLE IF EXISTS "Deployment" CASCADE;
+DROP TABLE IF EXISTS "ProcessNode" CASCADE;
+DROP TABLE IF EXISTS "ProcessModel" CASCADE;
+DROP TABLE IF EXISTS "FormConfig" CASCADE;
+DROP TABLE IF EXISTS "ProcessCategory" CASCADE;
+DROP TABLE IF EXISTS "ProcessInstance" CASCADE;
+DROP TABLE IF EXISTS "ApprovalActionLog" CASCADE;
