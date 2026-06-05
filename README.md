@@ -1,6 +1,6 @@
 # Message Center Backend
 
-采购协同系统后端服务，基于 NestJS + Prisma + PostgreSQL + Redis。
+采购协同系统后端服务，基于 NestJS + Prisma + PostgreSQL。
 
 ## 文档导航
 
@@ -15,7 +15,6 @@
 - 鉴权：JWT、bcryptjs
 - 数据访问：Prisma ORM
 - 数据库：PostgreSQL 16
-- 缓存：Redis 7
 - 工具链：ESLint、Prettier、Jest
 
 ## 目录说明
@@ -27,7 +26,7 @@
 ## 环境准备
 
 1. Node.js 20+
-2. Docker Desktop（用于本地 PostgreSQL/Redis）
+2. Docker Desktop（用于本地 PostgreSQL）
 3. npm 10+
 
 ## 环境变量
@@ -38,8 +37,7 @@
 PORT=3000
 CORS_ORIGIN=http://localhost:8080
 JWT_SECRET=change-me-in-prod
-DATABASE_URL=postgresql://purchase:purchase@localhost:5432/purchase_db?schema=public
-REDIS_URL=redis://localhost:6379
+DATABASE_URL=postgresql://purchase:purchase@localhost:5434/purchase_db?schema=public
 ADMIN_USERNAME=admin
 ADMIN_NAME=系统管理员
 ADMIN_PASSWORD=Admin@123456
@@ -67,7 +65,7 @@ npm run dev:all
 ### 方式二：分步启动
 
 ```bash
-# 1) 启动数据库与缓存
+# 1) 启动数据库
 npm run db:up
 
 # 2) 启动后端
@@ -80,7 +78,7 @@ npm --prefix ..\ui5-message-center run start
 ## 常用命令
 
 ```bash
-# 关闭数据库与缓存
+# 关闭数据库
 npm run db:down
 
 # 生成 Prisma Client

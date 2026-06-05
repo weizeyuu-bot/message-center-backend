@@ -4,7 +4,7 @@
 
 - 前端：OpenUI5 构建为静态资源，由 Nginx 托管
 - 后端：NestJS 构建产物由 PM2 托管
-- 数据与缓存：PostgreSQL + Redis（Docker Compose）
+- 数据：PostgreSQL（Docker Compose）
 - 反向代理：Nginx 统一入口（HTTPS）
 
 ## 1. 部署目标与拓扑
@@ -14,16 +14,14 @@
 - 后端入口：`https://mc.example.com/api`
 - 内部服务：
   - NestJS：`127.0.0.1:3000`
-  - PostgreSQL：`127.0.0.1:5432`
-  - Redis：`127.0.0.1:6379`
+  - PostgreSQL：`127.0.0.1:5434`
 
 ```mermaid
 flowchart LR
   Browser[User Browser] --> Nginx[Nginx :443]
   Nginx --> UI[UI5 Static Files]
   Nginx --> API[NestJS :3000]
-  API --> PG[(PostgreSQL :5432)]
-  API --> RD[(Redis :6379)]
+  API --> PG[(PostgreSQL :5434)]
 ```
 
 ## 2. 服务器前置要求
@@ -108,8 +106,7 @@ NODE_ENV=production
 PORT=3000
 CORS_ORIGIN=https://mc.example.com
 JWT_SECRET=请替换为高强度随机字符串
-DATABASE_URL=postgresql://purchase:strong_password@127.0.0.1:5432/purchase_db?schema=public
-REDIS_URL=redis://127.0.0.1:6379
+DATABASE_URL=postgresql://purchase:strong_password@127.0.0.1:5434/purchase_db?schema=public
 
 # 首次初始化管理员时使用，后续可保留或移除
 ADMIN_USERNAME=admin
@@ -124,7 +121,7 @@ ADMIN_ROLE=ROLE_ADMIN
 - `CORS_ORIGIN` 填写真实前端域名
 - 数据库密码不要使用示例值
 
-## 6. 启动 PostgreSQL / Redis（Docker）
+## 6. 启动 PostgreSQL（Docker）
 
 本仓库后端目录已有 `docker-compose.yml`，可直接使用：
 
@@ -137,8 +134,7 @@ docker compose up -d
 
 ```bash
 docker compose ps
-docker logs purchase-postgres --tail 100
-docker logs purchase-redis --tail 100
+docker logs message-center-postgres --tail 100
 ```
 
 ## 7. 数据库迁移与种子
@@ -341,7 +337,7 @@ sudo systemctl reload nginx
 
 - 检查 `DATABASE_URL`
 - 检查 PostgreSQL 容器是否正常
-- 用 `docker logs purchase-postgres` 查看初始化状态
+- 用 `docker logs message-center-postgres` 查看初始化状态
 
 ### 14.4 跨域失败
 
@@ -355,7 +351,7 @@ sudo systemctl reload nginx
 
 ## 15. 安全加固建议
 
-- 仅开放 80/443，关闭 3000/5432/6379 对公网暴露
+- 仅开放 80/443，关闭 3000/5434 对公网暴露
 - 为 PostgreSQL 设置强密码并限制来源 IP
 - 定期备份数据库（至少每日一次）
 - 配置日志轮转（logrotate）避免日志占满磁盘

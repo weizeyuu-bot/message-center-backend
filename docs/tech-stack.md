@@ -15,7 +15,6 @@ Message Center 是一个面向运维与业务通知的消息中心系统，核�
 flowchart LR
   UI[OpenUI5 Frontend] --> API[NestJS Backend /api]
   API --> PG[(PostgreSQL)]
-  API --> RD[(Redis)]
 ```
 
 ## 3. 前端技术栈（ui5-message-center）
@@ -36,7 +35,6 @@ flowchart LR
 - TypeScript 5
 - Prisma ORM
 - PostgreSQL 16
-- Redis 7
 - JWT + bcryptjs
 
 全局基础能力：
@@ -58,7 +56,6 @@ flowchart TD
   App --> Notify[NotifyModule]
   App --> Scheduler[SchedulerModule]
   App --> Prisma[PrismaModule]
-  App --> Redis[RedisModule]
 ```
 
 模块职责：
@@ -82,13 +79,13 @@ flowchart TD
 - 代码质量：ESLint + Prettier
 - 测试：Jest
 - 构建：Nest build + UI5 build
-- 依赖服务：Docker Compose（PostgreSQL/Redis）
+- 依赖服务：Docker Compose（PostgreSQL）
 
 常用命令：
 - 后端开发：npm run start:dev
 - 后端构建：npm run build
 - 前端开发：npm --prefix ..\\ui5-message-center run start
-- 数据库与缓存启动：npm run db:up
+- 数据库启动：npm run db:up
 
 ## 8. 文档范围说明
 

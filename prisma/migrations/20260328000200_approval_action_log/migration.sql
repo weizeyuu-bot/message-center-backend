@@ -21,5 +21,3 @@ CREATE INDEX "ApprovalActionLog_processInstanceId_createdAt_idx" ON "ApprovalAct
 -- CreateIndex
 CREATE INDEX "ApprovalActionLog_businessObject_businessId_createdAt_idx" ON "ApprovalActionLog"("businessObject", "businessId", "createdAt");
 
--- AddForeignKey
-ALTER TABLE "ApprovalActionLog" ADD CONSTRAINT "ApprovalActionLog_processInstanceId_fkey" FOREIGN KEY ("processInstanceId") REFERENCES "ProcessInstance"("id") ON DELETE CASCADE ON UPDATE CASCADE;

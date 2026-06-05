@@ -6,7 +6,6 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { PrismaModule } from './common/prisma/prisma.module';
-import { RedisModule } from './common/redis/redis.module';
 import { RbacModule } from './rbac/rbac.module';
 import { UsersModule } from './users/users.module';
 import { DataSourceModule } from './datasource/datasource.module';
@@ -23,7 +22,6 @@ import { JwtAuthGuard } from './common/auth/jwt-auth.guard';
       signOptions: { expiresIn: '7d' },
     }),
     PrismaModule,
-    RedisModule,
     AuthModule,
     RbacModule,
     UsersModule,
