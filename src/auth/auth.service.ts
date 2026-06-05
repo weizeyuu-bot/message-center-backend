@@ -4,15 +4,17 @@ import * as bcrypt from 'bcryptjs';
 import { PrismaService } from '../common/prisma/prisma.service';
 import { LoginDto } from './dto/login.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
+import { SystemService } from '../system/system.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
+    private readonly systemService: SystemService,
   ) {}
 
-  async login(dto: LoginDto) {
+  async login(dto: LoginDto, clientIp?: string) {
     const user = await this.prisma.user.findUnique({ where: { username: dto.username } });
     if (!user) {
       throw new UnauthorizedException('用户名或密码错误');
@@ -33,6 +35,8 @@ export class AuthService {
       status: user.status,
     };
 
+    this.systemService.recordLogin({ id: user.id, username: user.username }, clientIp);
+
     return {
       success: true,
       token: accessToken,
@@ -44,7 +48,7 @@ export class AuthService {
     };
   }
 
-  async refresh(token: string, dto?: RefreshTokenDto) {
+  async refresh(token: string, dto?: RefreshTokenDto, clientIp?: string) {
     let payload: { sub: string; username?: string; role?: string };
 
     try {
@@ -71,6 +75,8 @@ export class AuthService {
       role: user.role,
       status: user.status,
     };
+
+    this.systemService.touchSession({ id: user.id, username: user.username }, clientIp);
 
     return {
       success: true,

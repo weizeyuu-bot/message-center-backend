@@ -12,6 +12,7 @@ import { DataSourceModule } from './datasource/datasource.module';
 import { NotifyModule } from './notify/notify.module';
 import { SchedulerModule } from './scheduler/scheduler.module';
 import { JwtAuthGuard } from './common/auth/jwt-auth.guard';
+import { SystemModule } from './system/system.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { JwtAuthGuard } from './common/auth/jwt-auth.guard';
     DataSourceModule,
     NotifyModule,
     SchedulerModule,
+    SystemModule,
   ],
   controllers: [AppController],
   providers: [
