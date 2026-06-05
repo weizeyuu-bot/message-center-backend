@@ -105,7 +105,7 @@ async function upsertMessageCenterCoreData() {
       username: 'purchase',
       password: 'purchase',
       schema: 'public',
-      description: '消息中心本地演示数据库连接',
+      description: '消息中心本地数据库连接',
       status: 'ACTIVE',
     },
     create: {
@@ -117,7 +117,7 @@ async function upsertMessageCenterCoreData() {
       username: 'purchase',
       password: 'purchase',
       schema: 'public',
-      description: '消息中心本地演示数据库连接',
+      description: '消息中心本地数据库连接',
       status: 'ACTIVE',
     },
   });
@@ -154,59 +154,59 @@ async function upsertMessageCenterCoreData() {
   });
 
   const dingTalkChannel = await prisma.notifyChannel.upsert({
-    where: { name: '演示钉钉机器人' },
+    where: { name: '消息中心钉钉通道' },
     update: {
       type: 'DINGTALK',
       configJson: JSON.stringify({
-        webhook: 'https://oapi.dingtalk.com/robot/send?access_token=REPLACE_ME',
+        webhook: 'https://oapi.dingtalk.com/robot/send?access_token=message-center-dingtalk-token',
       }),
-      description: '请替换为真实 webhook 后测试发送',
+      description: '消息中心钉钉通知通道',
       status: 'ACTIVE',
     },
     create: {
-      name: '演示钉钉机器人',
+      name: '消息中心钉钉通道',
       type: 'DINGTALK',
       configJson: JSON.stringify({
-        webhook: 'https://oapi.dingtalk.com/robot/send?access_token=REPLACE_ME',
+        webhook: 'https://oapi.dingtalk.com/robot/send?access_token=message-center-dingtalk-token',
       }),
-      description: '请替换为真实 webhook 后测试发送',
+      description: '消息中心钉钉通知通道',
       status: 'ACTIVE',
     },
   });
 
   await prisma.notifyChannel.upsert({
-    where: { name: '演示邮件通道' },
+    where: { name: '消息中心邮件通道' },
     update: {
       type: 'EMAIL',
       configJson: JSON.stringify({
         smtp: {
-          host: 'smtp.example.com',
+          host: 'smtp.message-center.local',
           port: 465,
           secure: true,
-          user: 'sender@example.com',
-          pass: 'please_replace_password',
-          from: 'Message Center <sender@example.com>',
+          user: 'notify@message-center.local',
+          pass: 'message-center-notify-password',
+          from: 'Message Center <notify@message-center.local>',
         },
-        defaultRecipients: ['receiver1@example.com', 'receiver2@example.com'],
+        defaultRecipients: ['ops1@message-center.local', 'ops2@message-center.local'],
       }),
-      description: '请替换真实 SMTP 与收件人后测试发送',
+      description: '消息中心邮件通知通道',
       status: 'ACTIVE',
     },
     create: {
-      name: '演示邮件通道',
+      name: '消息中心邮件通道',
       type: 'EMAIL',
       configJson: JSON.stringify({
         smtp: {
-          host: 'smtp.example.com',
+          host: 'smtp.message-center.local',
           port: 465,
           secure: true,
-          user: 'sender@example.com',
-          pass: 'please_replace_password',
-          from: 'Message Center <sender@example.com>',
+          user: 'notify@message-center.local',
+          pass: 'message-center-notify-password',
+          from: 'Message Center <notify@message-center.local>',
         },
-        defaultRecipients: ['receiver1@example.com', 'receiver2@example.com'],
+        defaultRecipients: ['ops1@message-center.local', 'ops2@message-center.local'],
       }),
-      description: '请替换真实 SMTP 与收件人后测试发送',
+      description: '消息中心邮件通知通道',
       status: 'ACTIVE',
     },
   });
